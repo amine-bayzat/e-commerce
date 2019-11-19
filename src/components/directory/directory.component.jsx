@@ -49,9 +49,10 @@ class Directory extends Component {
         return (
             <div className="directory-menu">
                 {
-                    this.state.sections.map(({title, imageUrl, id, size, name}) => {
+                    // by writing this syntax "...otherSectionProps" now we have access to the other properties as well in our state
+                    this.state.sections.map(({ id, ...otherSectionProps }) => {
                         return (
-                            <MenuItems key={id} title={title} size={size} imageUrl={imageUrl} />
+                            <MenuItems key={id} {...otherSectionProps} />
                         )
                     })
                 }
