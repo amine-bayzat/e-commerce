@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import './sign-in.style.scss';
 
 import FormInput from '../form-input/form-input.component';
-import CustomButton from '../custom-buttom/custom-button.component'
+import CustomButton from '../custom-buttom/custom-button.component';
+
+import { auth, signInWithGoogle } from '../../firebase/firebase.config'
 
 class SignIn extends Component {
 
@@ -15,13 +17,21 @@ class SignIn extends Component {
         } 
     }
 
-    handleSumbit = event => {
+    handleSumbit = async event => {
         event.preventDefault();
 
-        this.setState({
-            email: '',
-            password: ''
-        })
+        const { email, password } = this.state;
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+
+            this.setState({
+                email: '',
+                password: ''
+            })
+        } catch(error) {
+            console.log(error)
+        }
     }
 
     handleInput = e => {
@@ -33,16 +43,20 @@ class SignIn extends Component {
     }
 
     render() {
+        const {email, password} = this.state;
         return (
             <div className="sign-in">
                 <h1>I already have an account</h1>
                 <span>Sign in with your email and password</span>
 
                 <form onSubmit={this.handleSumbit}>
-                    <FormInput type="email" label="Email" name="email" value={this.state.email} handlechange={this.handleInput} required/>
-                    <FormInput type="password" label="Password" name="password" value={this.state.password} handlechange={this.handleInput} required/>
+                    <FormInput type="email" label="Email" name="email" value={email} handlechange={this.handleInput} required/>
+                    <FormInput type="password" label="Password" name="password" value={password} handlechange={this.handleInput} required/>
 
-                    <CustomButton type="sumbit" >Sign In</CustomButton>
+                    <div className='buttons'>
+                        <CustomButton type='submit'> Sign in </CustomButton>
+                        <CustomButton onClick={signInWithGoogle} isGoogleSignIn>Sign in with Google</CustomButton>
+                    </div>
                 </form>
             </div>
         )
