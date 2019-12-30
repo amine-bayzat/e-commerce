@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import './App.css';
 import { Switch, Route } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setCurrentUser } from './redux/user/user.actions';
 
 import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
@@ -11,34 +13,25 @@ import { auth, createUserProfile } from './firebase/firebase.config';
 
 class App extends Component {
 
-  constructor() {
-    super();
-
-    this.state = {
-      currentUser : null
-    }
-  }
-
   unsubcribeFromAuth = null;
 
   componentDidMount() {
+
+    const {setCurrentUser} = this.props;
+
     this.unsubcribeFromAuth = auth.onAuthStateChanged(async userAuth => { // Here we're listing to the authStateChanged method to check if there's an authUser object or not
       if (userAuth) { 
         const userRef = await createUserProfile(userAuth);
 
         // Subscribe to the snapshot and the update the state with snapshop object
         userRef.onSnapshot(snapShot => {
-          this.setState({
-            currentUser: {
-              id: snapShot.id,
-              ...snapShot.data()
-            }
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
           })
         })
       } else {
-        this.setState({
-          currentUser: null
-        })
+        setCurrentUser(userAuth)
       }
     })
   }
@@ -50,7 +43,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <Header userAuth={this.state.currentUser} />
+        <Header />
         <Switch>
           <Route exact path='/' component={HomePage} />
           <Route exact path='/shop' component={ShopPage} />
@@ -61,5 +54,10 @@ class App extends Component {
   }
 }
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setCurrentUser: user => dispatch(setCurrentUser(user))
+  }
+}
 
-export default App;
+export default connect(null, mapDispatchToProps)(App);
