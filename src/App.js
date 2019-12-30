@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import './App.css';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setCurrentUser } from './redux/user/user.actions';
 
@@ -10,6 +10,7 @@ import SignIn from './pages/sign-in-sign-up/sign-in-sign-up.component';
 import Header from './components/header/header.component';
 
 import { auth, createUserProfile } from './firebase/firebase.config';
+import SignInSignUp from './pages/sign-in-sign-up/sign-in-sign-up.component';
 
 class App extends Component {
 
@@ -47,12 +48,22 @@ class App extends Component {
         <Switch>
           <Route exact path='/' component={HomePage} />
           <Route exact path='/shop' component={ShopPage} />
-          <Route exact path='/signin' component={SignIn} />
+          <Route 
+            exact 
+            path='/signin' 
+            render={() => 
+              this.props.currentUser ? 
+              (<Redirect to='/' />) : 
+              (<SignInSignUp />)} />
         </Switch>
       </div>
     )
   }
 }
+
+const mapStateToProps = ({user}) => ({
+  currentUser: user.currentUser
+})
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -60,4 +71,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
